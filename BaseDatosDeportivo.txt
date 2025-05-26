@@ -1,0 +1,196 @@
+Información de mi base de datos:
+
+| table_name                | column_name           | data_type                | character_maximum_length | is_nullable | column_default                     |
+| ------------------------- | --------------------- | ------------------------ | ------------------------ | ----------- | ---------------------------------- |
+| actividades               | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| actividades               | nombre                | character varying        | 100                      | NO          | null                               |
+| actividades               | familia_id            | uuid                     | null                     | NO          | null                               |
+| actividades               | instalacion_id        | uuid                     | null                     | NO          | null                               |
+| actividades               | descripcion           | text                     | null                     | YES         | null                               |
+| actividades               | plazas_max            | integer                  | null                     | NO          | null                               |
+| actividades               | plazas_ocupadas       | integer                  | null                     | NO          | 0                                  |
+| actividades               | duracion_minutos      | integer                  | null                     | NO          | null                               |
+| actividades               | dias_semana           | ARRAY                    | null                     | YES         | null                               |
+| actividades               | hora_inicio           | time without time zone   | null                     | NO          | null                               |
+| actividades               | hora_fin              | time without time zone   | null                     | NO          | null                               |
+| actividades               | fecha_inicio          | date                     | null                     | NO          | null                               |
+| actividades               | fecha_fin             | date                     | null                     | YES         | null                               |
+| actividades               | es_recurrente         | boolean                  | null                     | NO          | true                               |
+| actividades               | monitor_id            | uuid                     | null                     | YES         | null                               |
+| actividades               | nivel                 | character varying        | 50                       | YES         | null                               |
+| actividades               | precio                | numeric                  | null                     | YES         | null                               |
+| actividades               | estado                | USER-DEFINED             | null                     | NO          | 'activa'::estado_actividad         |
+| actividades               | imagen_url            | character varying        | 255                      | YES         | null                               |
+| asistencia_actividades    | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| asistencia_actividades    | inscripcion_id        | uuid                     | null                     | NO          | null                               |
+| asistencia_actividades    | sesion_id             | uuid                     | null                     | NO          | null                               |
+| asistencia_actividades    | asistio               | boolean                  | null                     | NO          | false                              |
+| eventos                   | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| eventos                   | nombre                | character varying        | 200                      | NO          | null                               |
+| eventos                   | descripcion           | text                     | null                     | NO          | null                               |
+| eventos                   | fecha_inicio          | timestamp with time zone | null                     | NO          | null                               |
+| eventos                   | fecha_fin             | timestamp with time zone | null                     | NO          | null                               |
+| eventos                   | lugar                 | character varying        | 255                      | NO          | null                               |
+| eventos                   | imagen_url            | character varying        | 255                      | YES         | null                               |
+| eventos                   | estado                | USER-DEFINED             | null                     | NO          | 'programado'::estado_evento        |
+| familia_actividades       | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| familia_actividades       | nombre                | character varying        | 100                      | NO          | null                               |
+| familia_actividades       | descripcion           | text                     | null                     | YES         | null                               |
+| familia_actividades       | icono_url             | character varying        | 255                      | YES         | null                               |
+| familia_actividades       | color                 | character varying        | 30                       | YES         | null                               |
+| horarios_polideportivo    | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| horarios_polideportivo    | fecha                 | date                     | null                     | YES         | null                               |
+| horarios_polideportivo    | dia_semana            | integer                  | null                     | YES         | null                               |
+| horarios_polideportivo    | es_festivo            | boolean                  | null                     | NO          | false                              |
+| horarios_polideportivo    | estado                | USER-DEFINED             | null                     | NO          | null                               |
+| horarios_polideportivo    | hora_apertura         | time without time zone   | null                     | YES         | null                               |
+| horarios_polideportivo    | hora_cierre           | time without time zone   | null                     | YES         | null                               |
+| horarios_polideportivo    | motivo_cierre         | text                     | null                     | YES         | null                               |
+| inscripciones_actividades | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| inscripciones_actividades | actividad_id          | uuid                     | null                     | NO          | null                               |
+| inscripciones_actividades | usuario_id            | uuid                     | null                     | NO          | null                               |
+| inscripciones_actividades | fecha_inscripcion     | timestamp with time zone | null                     | NO          | CURRENT_TIMESTAMP                  |
+| inscripciones_actividades | fecha_cancelacion     | timestamp with time zone | null                     | YES         | null                               |
+| inscripciones_actividades | estado                | USER-DEFINED             | null                     | NO          | 'confirmada'::estado_reserva       |
+| instalaciones             | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| instalaciones             | nombre                | character varying        | 100                      | NO          | null                               |
+| instalaciones             | tipo                  | USER-DEFINED             | null                     | NO          | null                               |
+| instalaciones             | capacidad_max         | integer                  | null                     | YES         | null                               |
+| instalaciones             | descripcion           | text                     | null                     | YES         | null                               |
+| instalaciones             | disponible            | boolean                  | null                     | NO          | true                               |
+| instalaciones             | foto_url              | character varying        | 255                      | YES         | null                               |
+| instalaciones             | ubicacion             | character varying        | 255                      | YES         | null                               |
+| instalaciones             | caracteristicas_json  | jsonb                    | null                     | YES         | null                               |
+| mantenimientos            | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| mantenimientos            | instalacion_id        | uuid                     | null                     | NO          | null                               |
+| mantenimientos            | fecha_inicio          | timestamp with time zone | null                     | NO          | null                               |
+| mantenimientos            | fecha_fin             | timestamp with time zone | null                     | NO          | null                               |
+| mantenimientos            | descripcion           | text                     | null                     | NO          | null                               |
+| mantenimientos            | afecta_disponibilidad | boolean                  | null                     | NO          | true                               |
+| mantenimientos            | estado                | USER-DEFINED             | null                     | NO          | 'programado'::estado_mantenimiento |
+| noticias                  | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| noticias                  | titulo                | character varying        | 200                      | NO          | null                               |
+| noticias                  | contenido             | text                     | null                     | NO          | null                               |
+| noticias                  | fecha_publicacion     | timestamp with time zone | null                     | NO          | CURRENT_TIMESTAMP                  |
+| noticias                  | autor_id              | uuid                     | null                     | NO          | null                               |
+| noticias                  | imagen_url            | character varying        | 255                      | YES         | null                               |
+| noticias                  | destacada             | boolean                  | null                     | NO          | false                              |
+| noticias                  | categoria             | USER-DEFINED             | null                     | NO          | null                               |
+| noticias                  | fecha_expiracion      | timestamp with time zone | null                     | YES         | null                               |
+| notificaciones            | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| notificaciones            | usuario_id            | uuid                     | null                     | NO          | null                               |
+| notificaciones            | titulo                | character varying        | 100                      | NO          | null                               |
+| notificaciones            | mensaje               | text                     | null                     | NO          | null                               |
+| notificaciones            | tipo                  | USER-DEFINED             | null                     | NO          | null                               |
+| notificaciones            | leida                 | boolean                  | null                     | NO          | false                              |
+| notificaciones            | fecha_creacion        | timestamp with time zone | null                     | NO          | CURRENT_TIMESTAMP                  |
+| notificaciones            | fecha_lectura         | timestamp with time zone | null                     | YES         | null                               |
+| reservas                  | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| reservas                  | instalacion_id        | uuid                     | null                     | NO          | null                               |
+| reservas                  | usuario_id            | uuid                     | null                     | NO          | null                               |
+| reservas                  | fecha                 | date                     | null                     | NO          | null                               |
+| reservas                  | hora_inicio           | time without time zone   | null                     | NO          | null                               |
+| reservas                  | hora_fin              | time without time zone   | null                     | NO          | null                               |
+| reservas                  | estado                | USER-DEFINED             | null                     | NO          | 'pendiente'::estado_reserva        |
+| reservas                  | fecha_creacion        | timestamp with time zone | null                     | NO          | CURRENT_TIMESTAMP                  |
+| reservas                  | fecha_actualizacion   | timestamp with time zone | null                     | NO          | CURRENT_TIMESTAMP                  |
+| reservas                  | notas                 | text                     | null                     | YES         | null                               |
+| sesiones_actividad        | id                    | uuid                     | null                     | NO          | uuid_generate_v4()                 |
+| sesiones_actividad        | actividad_id          | uuid                     | null                     | NO          | null                               |
+| sesiones_actividad        | fecha                 | date                     | null                     | NO          | null                               |
+| sesiones_actividad        | hora_inicio           | time without time zone   | null                     | NO          | null                               |
+| sesiones_actividad        | hora_fin              | time without time zone   | null                     | NO          | null                               |
+| sesiones_actividad        | monitor_id            | uuid                     | null                     | YES         | null                               |
+| sesiones_actividad        | estado                | USER-DEFINED             | null                     | NO          | 'activa'::estado_actividad         |
+
+
+
+Politicas de mi base de datos:
+
+| schema_name | table_name                | policy_name                                                    | permission_type | command | using_expression                                                                                                                                                                                | with_check_expression                                                                                                                  |
+| ----------- | ------------------------- | -------------------------------------------------------------- | --------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| public      | actividades               | Solo administradores pueden gestionar actividades              | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | actividades               | Todos pueden ver actividades                                   | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | asistencia_actividades    | Los usuarios pueden ver su propia asistencia                   | PERMISSIVE      | SELECT  | (EXISTS ( SELECT 1
+   FROM inscripciones_actividades
+  WHERE ((inscripciones_actividades.id = asistencia_actividades.inscripcion_id) AND (inscripciones_actividades.usuario_id = auth.uid())))) | null                                                                                                                                   |
+| public      | asistencia_actividades    | Solo administradores pueden gestionar asistencia               | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | eventos                   | Solo administradores pueden gestionar eventos                  | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | eventos                   | Todos pueden ver eventos                                       | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | familia_actividades       | Solo administradores pueden modificar familias de actividades  | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | familia_actividades       | Todos pueden ver familias de actividades                       | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | horarios_polideportivo    | Solo administradores pueden modificar horarios                 | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | horarios_polideportivo    | Todos pueden ver horarios                                      | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | inscripciones_actividades | Los administradores pueden gestionar todas las inscripciones   | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | inscripciones_actividades | Los administradores pueden ver todas las inscripciones         | PERMISSIVE      | SELECT  | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | inscripciones_actividades | Los usuarios pueden actualizar sus propias inscripciones       | PERMISSIVE      | UPDATE  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | inscripciones_actividades | Los usuarios pueden crear sus propias inscripciones            | PERMISSIVE      | INSERT  | null                                                                                                                                                                                            | (auth.uid() = usuario_id)                                                                                                              |
+| public      | inscripciones_actividades | Los usuarios pueden ver sus propias inscripciones              | PERMISSIVE      | SELECT  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | instalaciones             | Solo administradores pueden actualizar instalaciones           | PERMISSIVE      | UPDATE  | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario)))) |
+| public      | instalaciones             | Solo administradores pueden crear instalaciones                | PERMISSIVE      | INSERT  | null                                                                                                                                                                                            | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario)))) |
+| public      | instalaciones             | Solo administradores pueden eliminar instalaciones             | PERMISSIVE      | DELETE  | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | instalaciones             | Todos pueden ver instalaciones                                 | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | mantenimientos            | Solo administradores pueden gestionar mantenimientos           | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | mantenimientos            | Todos pueden ver mantenimientos                                | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | noticias                  | Solo administradores pueden gestionar noticias                 | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | noticias                  | Todos pueden ver noticias                                      | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | notificaciones            | Los administradores pueden crear notificaciones                | PERMISSIVE      | INSERT  | null                                                                                                                                                                                            | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario)))) |
+| public      | notificaciones            | Los usuarios pueden marcar como leídas sus propias notificacio | PERMISSIVE      | UPDATE  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | notificaciones            | Los usuarios pueden ver sus propias notificaciones             | PERMISSIVE      | SELECT  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | reservas                  | Administradores pueden actualizar cualquier reserva            | PERMISSIVE      | UPDATE  | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario)))) |
+| public      | reservas                  | Administradores pueden eliminar cualquier reserva              | PERMISSIVE      | DELETE  | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | reservas                  | Los administradores pueden ver todas las reservas              | PERMISSIVE      | SELECT  | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | reservas                  | Los usuarios pueden crear sus propias reservas                 | PERMISSIVE      | INSERT  | null                                                                                                                                                                                            | (auth.uid() = usuario_id)                                                                                                              |
+| public      | reservas                  | Los usuarios pueden ver sus propias reservas                   | PERMISSIVE      | SELECT  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | reservas                  | Usuarios pueden actualizar sus propias reservas                | PERMISSIVE      | UPDATE  | (auth.uid() = usuario_id)                                                                                                                                                                       | (auth.uid() = usuario_id)                                                                                                              |
+| public      | reservas                  | Usuarios pueden eliminar sus propias reservas                  | PERMISSIVE      | DELETE  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | sesiones_actividad        | Solo administradores pueden gestionar sesiones                 | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | sesiones_actividad        | Todos pueden ver sesiones de actividad                         | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | usuarios                  | Acceso público para autenticación                              | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
+| public      | usuarios                  | Los usuarios pueden ver sus propios datos                      | PERMISSIVE      | SELECT  | (auth.uid() = id)                                                                                                                                                                               | null                                                                                                                                   |
+| public      | usuarios                  | Usuarios pueden actualizar sus propios datos                   | PERMISSIVE      | UPDATE  | (auth.uid() = id)                                                                                                                                                                               | (auth.uid() = id)                                                                                                                      |
+| public      | usuarios                  | Usuarios pueden registrarse                                    | PERMISSIVE      | INSERT  | null                                                                                                                                                                                            | (auth.uid() = id)                                                                                                                      |
+| public      | valoraciones              | Los administradores pueden gestionar todas las valoraciones    | PERMISSIVE      | ALL     | (EXISTS ( SELECT 1
+   FROM usuarios
+  WHERE ((usuarios.id = auth.uid()) AND (usuarios.tipo_usuario = 'administrador'::tipo_usuario))))                                                          | null                                                                                                                                   |
+| public      | valoraciones              | Los usuarios pueden crear sus propias valoraciones             | PERMISSIVE      | INSERT  | null                                                                                                                                                                                            | (auth.uid() = usuario_id)                                                                                                              |
+| public      | valoraciones              | Los usuarios pueden modificar sus propias valoraciones         | PERMISSIVE      | UPDATE  | (auth.uid() = usuario_id)                                                                                                                                                                       | null                                                                                                                                   |
+| public      | valoraciones              | Todos pueden ver valoraciones                                  | PERMISSIVE      | SELECT  | true                                                                                                                                                                                            | null                                                                                                                                   |
