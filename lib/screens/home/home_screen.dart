@@ -3,7 +3,7 @@ import 'package:deportivov1/models/activity_model.dart';
 import 'package:deportivov1/models/event_model.dart';
 import 'package:deportivov1/models/news_model.dart';
 import 'package:deportivov1/models/reservation_model.dart';
-import 'package:deportivov1/screens/reservations/reservations_screen.dart';
+
 import 'package:deportivov1/screens/events/events_screen.dart';
 import 'package:deportivov1/services/activity_service.dart';
 import 'package:deportivov1/services/auth_provider.dart';

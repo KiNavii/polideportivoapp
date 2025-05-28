@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "files": {
+      "include": ["**/*.ts", "**/*.js"]
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2,
+      "singleQuote": true,
+      "proseWrap": "preserve"
+    }
+  },
+  "imports": {
+    "supabase": "https://esm.sh/@supabase/supabase-js@2",
+    "cors": "https://deno.land/x/cors@v1.2.2/mod.ts"
+  }
+} 

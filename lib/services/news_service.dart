@@ -1,5 +1,6 @@
 import 'package:deportivov1/models/news_model.dart';
 import 'package:deportivov1/services/supabase_service.dart';
+import 'package:deportivov1/services/automatic_notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NewsService {
@@ -163,6 +164,7 @@ class NewsService {
     String? imagenUrl,
     bool destacada = false,
     DateTime? fechaExpiracion,
+    bool sendNotifications = true,
   }) async {
     try {
       final data = {
@@ -179,7 +181,32 @@ class NewsService {
         data['fecha_expiracion'] = fechaExpiracion.toIso8601String();
       }
 
-      await _client.from('noticias').insert(data);
+      // Insertar noticia y obtener el ID
+      final response = await _client
+          .from('noticias')
+          .insert(data)
+          .select('id')
+          .single();
+
+      final newsId = response['id'].toString();
+
+      // 🚀 ENVIAR NOTIFICACIONES AUTOMÁTICAS A TODOS LOS USUARIOS
+      if (sendNotifications) {
+        print('📰 Enviando notificaciones automáticas para nueva noticia...');
+        
+        // Ejecutar en background para no bloquear la creación de la noticia
+        AutomaticNotificationService.notifyNewNews(
+          newsId: newsId,
+          title: titulo,
+          content: contenido,
+          category: categoria,
+          isHighlighted: destacada,
+        ).catchError((error) {
+          print('⚠️ Error enviando notificaciones automáticas: $error');
+          // No fallar la creación de la noticia por errores de notificación
+        });
+      }
+
       return true;
     } catch (e) {
       print('Error al crear noticia: $e');

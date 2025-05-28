@@ -1,7 +1,9 @@
 import 'package:deportivov1/models/user_model.dart';
 import 'package:deportivov1/services/auth_service.dart';
+import 'package:deportivov1/services/notification_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 
 enum AuthStatus { initial, authenticated, unauthenticated }
 
@@ -34,10 +36,25 @@ class AuthProvider with ChangeNotifier {
     // Verificar si hay un usuario en sesión
     _authService
         .getCurrentUser()
-        .then((user) {
+        .then((user) async {
           if (user != null) {
             _user = user;
             _status = AuthStatus.authenticated;
+            
+            
+            
+            // Inicializar servicio de notificaciones para usuario existente
+            try {
+              await NotificationService().initialize(user.id);
+              if (kDebugMode) {
+                print('✅ Servicio de notificaciones inicializado para usuario existente: ${user.id}');
+              }
+            } catch (e) {
+              if (kDebugMode) {
+                print('⚠️ Error al inicializar notificaciones: $e');
+              }
+              // No fallar la inicialización por problemas de notificaciones
+            }
           } else {
             _status = AuthStatus.unauthenticated;
           }
@@ -51,6 +68,8 @@ class AuthProvider with ChangeNotifier {
         });
   }
 
+
+
   // Método para iniciar sesión
   Future<bool> signIn({required String email, required String password}) async {
     try {
@@ -62,6 +81,22 @@ class AuthProvider with ChangeNotifier {
 
       _user = user;
       _status = AuthStatus.authenticated;
+      
+      // Inicializar servicio de notificaciones después del login exitoso
+      if (user != null) {
+        try {
+          await NotificationService().initialize(user.id);
+          if (kDebugMode) {
+            print('✅ Servicio de notificaciones inicializado para usuario: ${user.id}');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('⚠️ Error al inicializar notificaciones: $e');
+          }
+          // No fallar el login por problemas de notificaciones
+        }
+      }
+      
       _loading = false;
       notifyListeners();
       return true;
@@ -99,6 +134,22 @@ class AuthProvider with ChangeNotifier {
 
       _user = user;
       _status = AuthStatus.authenticated;
+      
+      // Inicializar servicio de notificaciones después del registro exitoso
+      if (user != null) {
+        try {
+          await NotificationService().initialize(user.id);
+          if (kDebugMode) {
+            print('✅ Servicio de notificaciones inicializado para nuevo usuario: ${user.id}');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('⚠️ Error al inicializar notificaciones: $e');
+          }
+          // No fallar el registro por problemas de notificaciones
+        }
+      }
+      
       _loading = false;
       notifyListeners();
       return true;
@@ -116,6 +167,8 @@ class AuthProvider with ChangeNotifier {
     try {
       _loading = true;
       notifyListeners();
+
+
 
       await _authService.signOut();
 

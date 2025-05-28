@@ -5,9 +5,13 @@ import 'package:deportivov1/screens/main_navigation.dart';
 import 'package:deportivov1/screens/splash_screen.dart';
 import 'package:deportivov1/services/auth_provider.dart';
 import 'package:deportivov1/services/supabase_service.dart';
+import 'package:deportivov1/services/notification_provider.dart';
+import 'package:deportivov1/services/scheduled_notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // Variable global para controlar la visibilidad de las marcas de agua
 // Establecer a false para resolver problemas de overflow en algunos dispositivos
@@ -19,12 +23,23 @@ void main() async {
   // Inicializar soporte para español
   await initializeDateFormatting('es_ES', null);
 
+  // Inicializar Firebase (para notificaciones push)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // Inicializar Supabase
   await SupabaseService.initialize();
 
+  // 🚀 INICIALIZAR SERVICIO DE RECORDATORIOS AUTOMÁTICOS
+  ScheduledNotificationService.startReminderService();
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -50,21 +65,43 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AppWrapper extends StatelessWidget {
+class AppWrapper extends StatefulWidget {
   const AppWrapper({super.key});
 
   @override
+  State<AppWrapper> createState() => _AppWrapperState();
+}
+
+class _AppWrapperState extends State<AppWrapper> {
+  @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    return Consumer2<AuthProvider, NotificationProvider>(
+      builder: (context, authProvider, notificationProvider, child) {
+        // Mostrar pantalla de carga mientras se inicializa
+        if (authProvider.status == AuthStatus.initial) {
+          return const SplashScreen();
+        }
 
-    // Mostrar pantalla de carga mientras se inicializa
-    if (authProvider.status == AuthStatus.initial) {
-      return const SplashScreen();
-    }
+        // Si el usuario está autenticado, inicializar notificaciones
+        if (authProvider.isAuthenticated && authProvider.user != null) {
+          // Inicializar notificaciones solo una vez
+          if (!notificationProvider.isInitialized) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              notificationProvider.initialize(authProvider.user!.id);
+            });
+          }
+          return const MainNavigation();
+        }
 
-    // Mostrar pantalla de autenticación o navegación principal
-    return authProvider.isAuthenticated
-        ? const MainNavigation()
-        : LoginScreen();
+        // Si no está autenticado, limpiar notificaciones
+        if (!authProvider.isAuthenticated && notificationProvider.isInitialized) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            notificationProvider.dispose();
+          });
+        }
+
+        return const LoginScreen();
+      },
+    );
   }
 }

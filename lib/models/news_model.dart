@@ -1,9 +1,10 @@
 enum NewsCategory {
-  eventos,
-  instalaciones,
-  actividades,
+  evento,
+  noticia,
   mantenimiento,
   promocion,
+  aviso,
+  informativa,
 }
 
 class News {
@@ -66,18 +67,20 @@ class News {
 
   static NewsCategory _parseCategoria(String categoria) {
     switch (categoria) {
-      case 'eventos':
-        return NewsCategory.eventos;
-      case 'instalaciones':
-        return NewsCategory.instalaciones;
-      case 'actividades':
-        return NewsCategory.actividades;
+      case 'evento':
+        return NewsCategory.evento;
+      case 'noticia':
+        return NewsCategory.noticia;
       case 'mantenimiento':
         return NewsCategory.mantenimiento;
       case 'promocion':
         return NewsCategory.promocion;
+      case 'aviso':
+        return NewsCategory.aviso;
+      case 'informativa':
+        return NewsCategory.informativa;
       default:
-        return NewsCategory.eventos;
+        return NewsCategory.noticia;
     }
   }
 }

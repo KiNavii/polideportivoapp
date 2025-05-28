@@ -1,6 +1,7 @@
 import 'package:deportivov1/models/activity_model.dart';
 import 'package:deportivov1/models/activity_family_model.dart';
 import 'package:deportivov1/services/supabase_service.dart';
+import 'package:deportivov1/services/automatic_notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ActivityService {
@@ -318,9 +319,25 @@ class ActivityService {
   // Actualizar estado de una inscripción
   static Future<bool> updateEnrollmentStatus(
     String enrollmentId,
-    String newStatus,
-  ) async {
+    String newStatus, {
+    String? rejectionReason,
+    bool sendNotifications = true,
+  }) async {
     try {
+      // Obtener datos de la inscripción antes de actualizar
+      Map<String, dynamic>? enrollmentData;
+      if (sendNotifications && (newStatus == 'confirmada' || newStatus == 'cancelada')) {
+        enrollmentData = await _client
+            .from('inscripciones_actividades')
+            .select('''
+              id, usuario_id, actividad_id,
+              actividades(nombre, hora_inicio, hora_fin, dias_semana, fecha_inicio),
+              usuarios(nombre, apellidos, email)
+            ''')
+            .eq('id', enrollmentId)
+            .single();
+      }
+
       // Solo actualizar el estado, sin campos de fecha adicionales
       final updateData = {'estado': newStatus};
 
@@ -329,13 +346,53 @@ class ActivityService {
         updateData['fecha_cancelacion'] = DateTime.now().toIso8601String();
       }
 
-      // Eliminar el intento de guardar fecha_confirmacion que no existe en la tabla
-      // No añadir updateData['fecha_confirmacion']
-
       await _client
           .from('inscripciones_actividades')
           .update(updateData)
           .eq('id', enrollmentId);
+
+      // 🚀 ENVIAR NOTIFICACIONES AUTOMÁTICAS
+      if (sendNotifications && enrollmentData != null) {
+        final userId = enrollmentData['usuario_id'];
+        final activity = enrollmentData['actividades'];
+        final activityName = activity['nombre'] ?? 'Actividad';
+        
+        // Construir horario si está disponible
+        String? schedule;
+        if (activity['hora_inicio'] != null && activity['hora_fin'] != null) {
+          final diasSemana = activity['dias_semana'];
+          final dias = diasSemana is List ? diasSemana.join(', ') : '';
+          schedule = '${activity['hora_inicio']} - ${activity['hora_fin']}';
+          if (dias.isNotEmpty) {
+            schedule = '$dias: $schedule';
+          }
+        }
+
+        final startDate = activity['fecha_inicio'];
+
+        if (newStatus == 'confirmada') {
+          // Inscripción aceptada
+          AutomaticNotificationService.notifyInscriptionAccepted(
+            inscriptionId: enrollmentId,
+            userId: userId,
+            activityName: activityName,
+            startDate: startDate,
+            schedule: schedule,
+          ).catchError((error) {
+            print('⚠️ Error enviando notificación de inscripción aceptada: $error');
+          });
+        } else if (newStatus == 'cancelada') {
+          // Inscripción rechazada
+          AutomaticNotificationService.notifyInscriptionRejected(
+            inscriptionId: enrollmentId,
+            userId: userId,
+            activityName: activityName,
+            reason: rejectionReason,
+          ).catchError((error) {
+            print('⚠️ Error enviando notificación de inscripción rechazada: $error');
+          });
+        }
+      }
 
       return true;
     } catch (e) {
@@ -345,7 +402,10 @@ class ActivityService {
   }
 
   // Crear una nueva actividad
-  static Future<bool> createActivity(Map<String, dynamic> activityData) async {
+  static Future<bool> createActivity(
+    Map<String, dynamic> activityData, {
+    bool sendNotifications = true,
+  }) async {
     try {
       // Verificar que tenga los campos requeridos
       if (activityData['nombre'] == null ||
@@ -356,7 +416,50 @@ class ActivityService {
         return false;
       }
 
-      await _client.from('actividades').insert(activityData);
+      // Insertar actividad y obtener el ID
+      final response = await _client
+          .from('actividades')
+          .insert(activityData)
+          .select('id, nombre, descripcion, fecha_inicio, plazas_max, hora_inicio, hora_fin, dias_semana')
+          .single();
+
+      // 🚀 ENVIAR NOTIFICACIONES AUTOMÁTICAS A TODOS LOS USUARIOS
+      if (sendNotifications) {
+        print('🏃‍♂️ Enviando notificaciones automáticas para nueva actividad...');
+        
+        final activityId = response['id'].toString();
+        final activityName = response['nombre'] ?? 'Nueva Actividad';
+        final description = response['descripcion'] ?? '';
+        final fechaInicio = response['fecha_inicio'] != null 
+            ? DateTime.parse(response['fecha_inicio'])
+            : DateTime.now();
+        final maxPlaces = response['plazas_max'];
+        
+        // Construir horario
+        String? schedule;
+        if (response['hora_inicio'] != null && response['hora_fin'] != null) {
+          final diasSemana = response['dias_semana'];
+          final dias = diasSemana is List ? diasSemana.join(', ') : '';
+          schedule = '${response['hora_inicio']} - ${response['hora_fin']}';
+          if (dias.isNotEmpty) {
+            schedule = '$dias: $schedule';
+          }
+        }
+
+        // Ejecutar en background para no bloquear la creación
+        AutomaticNotificationService.notifyNewActivity(
+          activityId: activityId,
+          activityName: activityName,
+          description: description,
+          startDate: fechaInicio,
+          schedule: schedule,
+          maxPlaces: maxPlaces,
+        ).catchError((error) {
+          print('⚠️ Error enviando notificaciones automáticas: $error');
+          // No fallar la creación de la actividad por errores de notificación
+        });
+      }
+
       return true;
     } catch (e) {
       print('Error al crear actividad: $e');

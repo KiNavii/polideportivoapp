@@ -511,17 +511,18 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
 
     // Variables para el estado inicial
     String categoriaValue =
-        item?['categoria'] ?? (isNews ? 'eventos' : 'deportivo');
+        item?['categoria'] ?? (isNews ? 'noticia' : 'deportivo');
     if (isNews &&
         ![
-          'eventos',
-          'instalaciones',
-          'actividades',
+          'evento',
+          'noticia',
           'mantenimiento',
           'promocion',
+          'aviso',
+          'informativa',
         ].contains(categoriaValue)) {
       categoriaValue =
-          'eventos'; // Valor por defecto si el valor actual no está en la lista para noticias
+          'noticia'; // Valor por defecto si el valor actual no está en la lista para noticias
     } else if (!isNews &&
         ![
           'deportivo',
@@ -608,16 +609,12 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
                                   value: categoriaValue,
                                   items: const [
                                     DropdownMenuItem(
-                                      value: 'eventos',
-                                      child: Text('Eventos'),
+                                      value: 'evento',
+                                      child: Text('Evento'),
                                     ),
                                     DropdownMenuItem(
-                                      value: 'instalaciones',
-                                      child: Text('Instalaciones'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'actividades',
-                                      child: Text('Actividades'),
+                                      value: 'noticia',
+                                      child: Text('Noticia'),
                                     ),
                                     DropdownMenuItem(
                                       value: 'mantenimiento',
@@ -626,6 +623,14 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
                                     DropdownMenuItem(
                                       value: 'promocion',
                                       child: Text('Promoción'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'aviso',
+                                      child: Text('Aviso'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'informativa',
+                                      child: Text('Informativa'),
                                     ),
                                   ],
                                   onChanged: (value) {
@@ -1199,6 +1204,7 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
                               autorId: userId,
                               imagenUrl: imagenUrl,
                               destacada: destacadaValue,
+                              sendNotifications: true,
                             );
                           } else {
                             // Actualizar noticia existente
@@ -1603,21 +1609,23 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
   // Convertir string de categoría a enum
   NewsCategory _parseNewsCategory(String categoria) {
     switch (categoria) {
-      case 'eventos':
-        return NewsCategory.eventos;
-      case 'instalaciones':
-        return NewsCategory.instalaciones;
-      case 'actividades':
-        return NewsCategory.actividades;
+      case 'evento':
+        return NewsCategory.evento;
+      case 'noticia':
+        return NewsCategory.noticia;
       case 'mantenimiento':
         return NewsCategory.mantenimiento;
       case 'promocion':
         return NewsCategory.promocion;
+      case 'aviso':
+        return NewsCategory.aviso;
+      case 'informativa':
+        return NewsCategory.informativa;
       case 'otros':
       default:
-        // Cambiamos el valor predeterminado a 'eventos' en lugar de 'otros'
+        // Cambiamos el valor predeterminado a 'noticia' en lugar de 'otros'
         // ya que 'otros' no parece ser un valor válido en la base de datos
-        return NewsCategory.eventos;
+        return NewsCategory.noticia;
     }
   }
 
@@ -1639,12 +1647,5 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
     }
   }
 
-  // Add this helper method before the build method
-  String _formatTimeString(String time) {
-    // If the time already has HH:mm format, return as is
-    if (!time.contains(':')) return time;
 
-    // If it has seconds, remove them
-    return time.split(':').take(2).join(':');
-  }
 }

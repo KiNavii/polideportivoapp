@@ -6,7 +6,7 @@ import 'package:deportivov1/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:deportivov1/utils/string_extensions.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';

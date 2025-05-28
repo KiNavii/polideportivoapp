@@ -58,6 +58,14 @@ class MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[selectedIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/test-push-real');
+        },
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.notifications_active),
+        tooltip: 'Probar notificaciones push',
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
