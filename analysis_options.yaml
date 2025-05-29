@@ -21,8 +21,34 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # Code quality rules
+    prefer_single_quotes: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    
+    # Performance rules
+    avoid_function_literals_in_foreach_calls: true
+    prefer_for_elements_to_map_fromIterable: true
+    
+    # Style rules
+    always_declare_return_types: true
+    always_put_required_named_parameters_first: true
+    avoid_redundant_argument_values: true
+    prefer_expression_function_bodies: true
+    
+    # Documentation rules
+    public_member_api_docs: false  # Can be enabled for libraries
+    
+    # Error prevention
+    avoid_empty_else: true
+    avoid_returning_null_for_future: true
+    cancel_subscriptions: true
+    close_sinks: true
+    
+    # Disable print in production
+    avoid_print: false  # We use our custom Logger instead
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
