@@ -38,15 +38,12 @@ class _AdminEnrollmentsScreenState extends State<AdminEnrollmentsScreen>
 
     try {
       // Cargar inscripciones pendientes, confirmadas y canceladas
-      final pendingEnrollmentsFuture = ActivityService.getEnrollmentsByStatus(
-        'pendiente',
-      );
-      final approvedEnrollmentsFuture = ActivityService.getEnrollmentsByStatus(
-        'confirmada',
-      );
-      final rejectedEnrollmentsFuture = ActivityService.getEnrollmentsByStatus(
-        'cancelada',
-      );
+      final pendingEnrollmentsFuture =
+          ActivityServiceStatic.getEnrollmentsByStatus('pendiente');
+      final approvedEnrollmentsFuture =
+          ActivityServiceStatic.getEnrollmentsByStatus('confirmada');
+      final rejectedEnrollmentsFuture =
+          ActivityServiceStatic.getEnrollmentsByStatus('cancelada');
 
       final results = await Future.wait([
         pendingEnrollmentsFuture,
@@ -89,7 +86,7 @@ class _AdminEnrollmentsScreenState extends State<AdminEnrollmentsScreen>
     });
 
     try {
-      final success = await ActivityService.updateEnrollmentStatus(
+      final success = await ActivityServiceStatic.updateEnrollmentStatus(
         enrollmentId,
         newStatus,
       );

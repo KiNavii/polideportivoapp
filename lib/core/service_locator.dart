@@ -67,8 +67,8 @@ class ServiceLocator {
     // User Service
     _services[UserService] = UserService();
 
-    // Activity Service (optimizado)
-    _services[OptimizedActivityService] = OptimizedActivityService();
+    // Activity Service (renombrado desde OptimizedActivityService)
+    _services[ActivityService] = ActivityService();
 
     // Reservation Service
     _services[ReservationService] = ReservationService();
@@ -91,7 +91,7 @@ class ServiceLocator {
     if (!_services.containsKey(T)) {
       throw ServiceLocatorException('Servicio ${T.toString()} no registrado');
     }
-    
+
     try {
       return _services[T] as T;
     } catch (e) {
@@ -126,8 +126,8 @@ class ServiceLocator {
   /// Obtiene el servicio de caché
   static CacheService get cache => get<CacheService>();
 
-  /// Obtiene el servicio de actividades optimizado
-  static OptimizedActivityService get activities => get<OptimizedActivityService>();
+  /// Obtiene el servicio de actividades
+  static ActivityService get activities => get<ActivityService>();
 
   /// Obtiene el servicio de usuarios
   static UserService get users => get<UserService>();
@@ -155,17 +155,18 @@ class ServiceLocator {
 
   /// Obtiene estadísticas de servicios registrados
   static ServiceLocatorStats getStats() {
-    final registeredServices = _services.keys.map((type) => type.toString()).toList();
-    
+    final registeredServices =
+        _services.keys.map((type) => type.toString()).toList();
+
     // Lista de tipos de servicios esperados
     final expectedServices = [
       'LoggerService',
-      'ValidationService', 
+      'ValidationService',
       'CacheService',
       'SupabaseService',
       'AuthService',
       'UserService',
-      'OptimizedActivityService',
+      'ActivityService',
       'ReservationService',
       'InstallationService',
       'CourtService',
@@ -196,7 +197,7 @@ class ServiceLocatorStats {
     required this.isInitialized,
   });
 
-  double get registrationRatio => 
+  double get registrationRatio =>
       totalExpected > 0 ? totalRegistered / totalExpected : 0.0;
 
   @override
@@ -212,9 +213,9 @@ class ServiceLocatorStats {
 /// Excepción personalizada para errores del Service Locator
 class ServiceLocatorException implements Exception {
   final String message;
-  
+
   const ServiceLocatorException(this.message);
-  
+
   @override
   String toString() => 'ServiceLocatorException: $message';
-} 
+}

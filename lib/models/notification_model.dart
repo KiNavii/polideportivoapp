@@ -20,13 +20,7 @@ enum NotificationType {
   reminder,
 }
 
-enum NotificationPriority {
-  low,
-  normal,
-  high,
-  urgent,
-  defaultPriority,
-}
+enum NotificationPriority { low, normal, high, urgent, defaultPriority }
 
 class AppNotification {
   final String id;
@@ -57,8 +51,11 @@ class AppNotification {
     this.accionUrl,
   });
 
-  // Getter para compatibilidad con código existente
+  // Getters para compatibilidad con diferentes estructuras de BD
   Map<String, dynamic>? get data => datos;
+  String get usuarioId => userId;
+  DateTime get createdAt => fechaCreacion;
+  DateTime? get readAt => fechaLeida;
 
   // Getter para mostrar tiempo transcurrido
   String get timeAgo {
@@ -76,35 +73,86 @@ class AppNotification {
     }
   }
 
+  // Getter para icono según tipo
+  String get iconData {
+    switch (tipo) {
+      case NotificationType.reservationConfirmed:
+      case NotificationType.reservation:
+        return '📅';
+      case NotificationType.reservationCancelled:
+        return '❌';
+      case NotificationType.reservationReminder:
+      case NotificationType.reminder:
+        return '⏰';
+      case NotificationType.activityRegistered:
+      case NotificationType.activity:
+        return '🏃';
+      case NotificationType.activityCancelled:
+        return '🚫';
+      case NotificationType.activityReminder:
+        return '🔔';
+      case NotificationType.eventCreated:
+      case NotificationType.event:
+        return '🎪';
+      case NotificationType.eventUpdated:
+        return '📝';
+      case NotificationType.eventCancelled:
+        return '🚫';
+      case NotificationType.newsPublished:
+      case NotificationType.news:
+        return '📰';
+      case NotificationType.maintenanceScheduled:
+        return '🔧';
+      case NotificationType.systemUpdate:
+      case NotificationType.system:
+        return '⚙️';
+      default:
+        return 'ℹ️';
+    }
+  }
+
   factory AppNotification.fromJson(Map<String, dynamic> json) {
-    return AppNotification(
-      id: json['id'] ?? '',
-      userId: json['user_id'] ?? '',
-      titulo: json['titulo'] ?? '',
-      mensaje: json['mensaje'] ?? '',
-      tipo: _parseNotificationType(json['tipo']),
-      prioridad: _parseNotificationPriority(json['prioridad']),
-      datos: json['datos'] as Map<String, dynamic>?,
-      leida: json['leida'] ?? false,
-      fechaCreacion: DateTime.parse(json['fecha_creacion'] ?? DateTime.now().toIso8601String()),
-      fechaLeida: json['fecha_leida'] != null ? DateTime.parse(json['fecha_leida']) : null,
-      imagenUrl: json['imagen_url'],
-      accionUrl: json['accion_url'],
-    );
+    try {
+      return AppNotification(
+        id: json['id']?.toString() ?? '',
+        userId:
+            json['user_id']?.toString() ?? json['usuario_id']?.toString() ?? '',
+        titulo: json['titulo']?.toString() ?? '',
+        mensaje: json['mensaje']?.toString() ?? '',
+        tipo: _parseNotificationType(json['tipo']?.toString()),
+        prioridad: _parseNotificationPriority(json['prioridad']?.toString()),
+        datos:
+            json['datos'] as Map<String, dynamic>? ??
+            json['data'] as Map<String, dynamic>?,
+        leida: json['leida'] == true || json['leida'] == 1,
+        fechaCreacion: _parseDateTime(
+          json['fecha_creacion'] ?? json['created_at'],
+        ),
+        fechaLeida: _parseDateTime(json['fecha_leida'] ?? json['read_at']),
+        imagenUrl: json['imagen_url']?.toString(),
+        accionUrl: json['accion_url']?.toString(),
+      );
+    } catch (e) {
+      throw NotificationParseException('Error al parsear notificación: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'user_id': userId,
+      'usuario_id': userId, // Compatibilidad
       'titulo': titulo,
       'mensaje': mensaje,
       'tipo': tipo.toString().split('.').last,
       'prioridad': prioridad.toString().split('.').last,
       'datos': datos,
+      'data': datos, // Compatibilidad
       'leida': leida,
       'fecha_creacion': fechaCreacion.toIso8601String(),
+      'created_at': fechaCreacion.toIso8601String(), // Compatibilidad
       'fecha_leida': fechaLeida?.toIso8601String(),
+      'read_at': fechaLeida?.toIso8601String(), // Compatibilidad
       'imagen_url': imagenUrl,
       'accion_url': accionUrl,
     };
@@ -141,30 +189,44 @@ class AppNotification {
   }
 
   static NotificationType _parseNotificationType(String? tipo) {
-    switch (tipo) {
-      case 'reservationConfirmed':
+    if (tipo == null) return NotificationType.general;
+
+    switch (tipo.toLowerCase()) {
+      case 'reservationconfirmed':
+      case 'reservation_confirmed':
         return NotificationType.reservationConfirmed;
-      case 'reservationCancelled':
+      case 'reservationcancelled':
+      case 'reservation_cancelled':
         return NotificationType.reservationCancelled;
-      case 'reservationReminder':
+      case 'reservationreminder':
+      case 'reservation_reminder':
         return NotificationType.reservationReminder;
-      case 'activityRegistered':
+      case 'activityregistered':
+      case 'activity_registered':
         return NotificationType.activityRegistered;
-      case 'activityCancelled':
+      case 'activitycancelled':
+      case 'activity_cancelled':
         return NotificationType.activityCancelled;
-      case 'activityReminder':
+      case 'activityreminder':
+      case 'activity_reminder':
         return NotificationType.activityReminder;
-      case 'eventCreated':
+      case 'eventcreated':
+      case 'event_created':
         return NotificationType.eventCreated;
-      case 'eventUpdated':
+      case 'eventupdated':
+      case 'event_updated':
         return NotificationType.eventUpdated;
-      case 'eventCancelled':
+      case 'eventcancelled':
+      case 'event_cancelled':
         return NotificationType.eventCancelled;
-      case 'newsPublished':
+      case 'newspublished':
+      case 'news_published':
         return NotificationType.newsPublished;
-      case 'maintenanceScheduled':
+      case 'maintenancescheduled':
+      case 'maintenance_scheduled':
         return NotificationType.maintenanceScheduled;
-      case 'systemUpdate':
+      case 'systemupdate':
+      case 'system_update':
         return NotificationType.systemUpdate;
       case 'reservation':
         return NotificationType.reservation;
@@ -184,21 +246,68 @@ class AppNotification {
   }
 
   static NotificationPriority _parseNotificationPriority(String? prioridad) {
-    switch (prioridad) {
+    if (prioridad == null) return NotificationPriority.normal;
+
+    switch (prioridad.toLowerCase()) {
       case 'low':
+      case 'baja':
         return NotificationPriority.low;
       case 'normal':
         return NotificationPriority.normal;
       case 'high':
+      case 'alta':
         return NotificationPriority.high;
       case 'urgent':
+      case 'urgente':
         return NotificationPriority.urgent;
-      case 'defaultPriority':
+      case 'defaultpriority':
+      case 'default_priority':
         return NotificationPriority.defaultPriority;
       default:
         return NotificationPriority.normal;
     }
   }
+
+  static DateTime _parseDateTime(dynamic dateValue) {
+    if (dateValue == null) return DateTime.now();
+
+    if (dateValue is DateTime) return dateValue;
+
+    if (dateValue is String) {
+      try {
+        return DateTime.parse(dateValue);
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+
+    return DateTime.now();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppNotification &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'AppNotification{id: $id, titulo: $titulo, tipo: $tipo, leida: $leida}';
+  }
+}
+
+/// Excepción para errores de parseo de notificaciones
+class NotificationParseException implements Exception {
+  final String message;
+
+  const NotificationParseException(this.message);
+
+  @override
+  String toString() => 'NotificationParseException: $message';
 }
 
 class NotificationSettings {
@@ -251,14 +360,16 @@ class NotificationSettings {
       pushNotifications: json['push_notifications'] ?? true,
       emailNotifications: json['email_notifications'] ?? false,
       smsNotifications: json['sms_notifications'] ?? false,
-      quietHoursStart: json['quiet_hours_start'] != null 
-          ? DateTime.parse(json['quiet_hours_start']) 
-          : null,
-      quietHoursEnd: json['quiet_hours_end'] != null 
-          ? DateTime.parse(json['quiet_hours_end']) 
-          : null,
+      quietHoursStart:
+          json['quiet_hours_start'] != null
+              ? DateTime.parse(json['quiet_hours_start'])
+              : null,
+      quietHoursEnd:
+          json['quiet_hours_end'] != null
+              ? DateTime.parse(json['quiet_hours_end'])
+              : null,
       fechaActualizacion: DateTime.parse(
-        json['fecha_actualizacion'] ?? DateTime.now().toIso8601String()
+        json['fecha_actualizacion'] ?? DateTime.now().toIso8601String(),
       ),
     );
   }
@@ -304,18 +415,23 @@ class NotificationSettings {
     return NotificationSettings(
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      reservationNotifications: reservationNotifications ?? this.reservationNotifications,
-      activityNotifications: activityNotifications ?? this.activityNotifications,
+      reservationNotifications:
+          reservationNotifications ?? this.reservationNotifications,
+      activityNotifications:
+          activityNotifications ?? this.activityNotifications,
       eventNotifications: eventNotifications ?? this.eventNotifications,
       newsNotifications: newsNotifications ?? this.newsNotifications,
-      maintenanceNotifications: maintenanceNotifications ?? this.maintenanceNotifications,
+      maintenanceNotifications:
+          maintenanceNotifications ?? this.maintenanceNotifications,
       systemNotifications: systemNotifications ?? this.systemNotifications,
-      pushNotifications: pushEnabled ?? pushNotifications ?? this.pushNotifications,
-      emailNotifications: emailEnabled ?? emailNotifications ?? this.emailNotifications,
+      pushNotifications:
+          pushEnabled ?? pushNotifications ?? this.pushNotifications,
+      emailNotifications:
+          emailEnabled ?? emailNotifications ?? this.emailNotifications,
       smsNotifications: smsNotifications ?? this.smsNotifications,
       quietHoursStart: quietHoursStart ?? this.quietHoursStart,
       quietHoursEnd: quietHoursEnd ?? this.quietHoursEnd,
       fechaActualizacion: fechaActualizacion ?? this.fechaActualizacion,
     );
   }
-} 
+}

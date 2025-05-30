@@ -1,10 +1,157 @@
 import 'package:deportivov1/models/reservation_model.dart';
 import 'package:deportivov1/services/supabase_service.dart';
+import 'package:deportivov1/services/automatic_notification_service.dart';
+import 'package:deportivov1/core/logger_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 class ReservationService {
   static final SupabaseClient _client = SupabaseService.client;
+  static final LoggerService _logger = LoggerService();
+
+  // =====================================================
+  // MÉTODOS PRINCIPALES DE RESERVAS
+  // =====================================================
+
+  // Obtener reservas de un usuario específico
+  static Future<List<Reservation>> getUserReservations(
+    String userId, {
+    int limit = 20,
+  }) async {
+    if (userId.isEmpty) {
+      throw ReservationServiceException('ID de usuario no puede estar vacío');
+    }
+
+    try {
+      _logger.info('Obteniendo reservas del usuario: $userId (limit: $limit)');
+
+      final response = await _client
+          .from('reservas')
+          .select('''
+            *, 
+            instalaciones(nombre), 
+            pistas(nombre, numero),
+            usuarios(nombre, apellidos)
+          ''')
+          .eq('usuario_id', userId)
+          .order('fecha', ascending: false)
+          .limit(limit);
+
+      List<Reservation> reservations = [];
+      for (var data in response) {
+        try {
+          reservations.add(Reservation.fromJson(data));
+        } catch (e) {
+          _logger.warning(
+            'Error al procesar reserva individual del usuario',
+            e,
+          );
+          // Continuar con la siguiente reserva
+        }
+      }
+
+      _logger.info('✅ Reservas del usuario obtenidas: ${reservations.length}');
+      return reservations;
+    } catch (e) {
+      _logger.error('Error al obtener reservas del usuario: $userId', e);
+      throw ReservationServiceException(
+        'Error al obtener reservas del usuario: $e',
+      );
+    }
+  }
+
+  // Obtener reservas activas (confirmadas y futuras)
+  static Future<List<Reservation>> getActiveReservations({
+    int limit = 20,
+  }) async {
+    try {
+      _logger.info('Obteniendo reservas activas (limit: $limit)');
+
+      final today = DateTime.now().toIso8601String().split('T')[0];
+
+      final response = await _client
+          .from('reservas')
+          .select('''
+            *, 
+            instalaciones(nombre), 
+            pistas(nombre, numero),
+            usuarios(nombre, apellidos)
+          ''')
+          .eq('estado', 'confirmada')
+          .gte('fecha', today)
+          .order('fecha', ascending: true)
+          .limit(limit);
+
+      List<Reservation> reservations = [];
+      for (var data in response) {
+        try {
+          reservations.add(Reservation.fromJson(data));
+        } catch (e) {
+          _logger.warning('Error al procesar reserva activa individual', e);
+          // Continuar con la siguiente reserva
+        }
+      }
+
+      _logger.info('✅ Reservas activas obtenidas: ${reservations.length}');
+      return reservations;
+    } catch (e) {
+      _logger.error('Error al obtener reservas activas', e);
+      throw ReservationServiceException(
+        'Error al obtener reservas activas: $e',
+      );
+    }
+  }
+
+  // Obtener reservas históricas (pasadas)
+  static Future<List<Reservation>> getHistoricalReservations(
+    String userId, {
+    int limit = 20,
+  }) async {
+    if (userId.isEmpty) {
+      throw ReservationServiceException('ID de usuario no puede estar vacío');
+    }
+
+    try {
+      _logger.info(
+        'Obteniendo reservas históricas del usuario: $userId (limit: $limit)',
+      );
+
+      final today = DateTime.now().toIso8601String().split('T')[0];
+
+      final response = await _client
+          .from('reservas')
+          .select('''
+            *, 
+            instalaciones(nombre), 
+            pistas(nombre, numero),
+            usuarios(nombre, apellidos)
+          ''')
+          .eq('usuario_id', userId)
+          .lt('fecha', today)
+          .order('fecha', ascending: false)
+          .limit(limit);
+
+      List<Reservation> reservations = [];
+      for (var data in response) {
+        try {
+          reservations.add(Reservation.fromJson(data));
+        } catch (e) {
+          _logger.warning('Error al procesar reserva histórica individual', e);
+          // Continuar con la siguiente reserva
+        }
+      }
+
+      _logger.info('✅ Reservas históricas obtenidas: ${reservations.length}');
+      return reservations;
+    } catch (e) {
+      _logger.error(
+        'Error al obtener reservas históricas del usuario: $userId',
+        e,
+      );
+      throw ReservationServiceException(
+        'Error al obtener reservas históricas: $e',
+      );
+    }
+  }
 
   // Expose the client for direct use
   static SupabaseClient getClient() {
@@ -16,103 +163,6 @@ class ReservationService {
   static const String ESTADO_CONFIRMADA = 'confirmada';
   static const String ESTADO_CANCELADA = 'cancelada';
   static const String ESTADO_COMPLETADA = 'completada';
-
-  // Obtener todas las reservas de un usuario
-  static Future<List<Reservation>> getUserReservations(
-    String userId, {
-    int limit = 20,
-  }) async {
-    try {
-      final response = await _client
-          .from('reservas')
-          .select('*, instalaciones(*), pistas(*)')
-          .eq('usuario_id', userId)
-          .order('fecha', ascending: true)
-          .order('hora_inicio', ascending: true)
-          .limit(limit);
-
-      List<Reservation> reservations = [];
-      for (var data in response) {
-        try {
-          reservations.add(Reservation.fromJson(data));
-        } catch (e) {
-          print('Error al procesar reserva individual: $e');
-          // Continuar con la siguiente reserva
-        }
-      }
-      return reservations;
-    } catch (e) {
-      print('Error al obtener reservas del usuario: $e');
-      return [];
-    }
-  }
-
-  // Obtener reservas activas de un usuario
-  static Future<List<Reservation>> getActiveReservations(
-    String userId, {
-    int limit = 20,
-  }) async {
-    try {
-      final today = DateTime.now().toIso8601String().split('T')[0];
-
-      final response = await _client
-          .from('reservas')
-          .select('*, instalaciones(*), pistas(*)')
-          .eq('usuario_id', userId)
-          .eq('estado', ESTADO_CONFIRMADA)
-          .gte('fecha', today)
-          .order('fecha', ascending: true)
-          .order('hora_inicio', ascending: true)
-          .limit(limit);
-
-      List<Reservation> reservations = [];
-      for (var data in response) {
-        try {
-          reservations.add(Reservation.fromJson(data));
-        } catch (e) {
-          print('Error al procesar reserva individual: $e');
-          // Continuar con la siguiente reserva
-        }
-      }
-      return reservations;
-    } catch (e) {
-      print('Error al obtener reservas activas: $e');
-      return [];
-    }
-  }
-
-  // Obtener historial de reservas de un usuario
-  static Future<List<Reservation>> getHistoricalReservations(
-    String userId, {
-    int limit = 20,
-  }) async {
-    try {
-      final today = DateTime.now().toIso8601String().split('T')[0];
-
-      final response = await _client
-          .from('reservas')
-          .select('*, instalaciones(*), pistas(*)')
-          .eq('usuario_id', userId)
-          .or('fecha.lt.$today,estado.neq.${ESTADO_CONFIRMADA}')
-          .order('fecha', ascending: false)
-          .order('hora_inicio', ascending: true)
-          .limit(limit);
-
-      List<Reservation> reservations = [];
-      for (var data in response) {
-        try {
-          reservations.add(Reservation.fromJson(data));
-        } catch (e) {
-          print('Error al procesar reserva histórica: $e');
-          // Continuar con la siguiente reserva
-        }
-      }
-      return reservations;
-    } catch (e) {
-      print('Error al obtener historial de reservas: $e');
-      return [];
-    }
-  }
 
   // Crear una nueva reserva
   static Future<bool> createReservation({
@@ -333,7 +383,7 @@ class ReservationService {
     try {
       // Formatear la fecha para la consulta
       final String formattedDate = date.toIso8601String().split('T')[0];
-      
+
       // Consultar reservas para esta pista en esta fecha usando Supabase
       final reservations = await _client
           .from('reservas')
@@ -342,18 +392,18 @@ class ReservationService {
           .eq('fecha', formattedDate)
           .or('estado.eq.confirmada,estado.eq.pendiente')
           .order('hora_inicio');
-      
+
       // Convertir resultados a objetos Reservation
       List<Reservation> result = [];
       for (var data in reservations) {
         try {
           // Parsear la fecha
           DateTime fecha = DateTime.parse(data['fecha']);
-          
+
           // Determinar el estado de la reserva
           ReservationStatus estado;
           String estadoString = data['estado'] ?? 'pendiente';
-          
+
           switch (estadoString) {
             case 'confirmada':
               estado = ReservationStatus.confirmada;
@@ -367,22 +417,24 @@ class ReservationService {
             default:
               estado = ReservationStatus.pendiente;
           }
-          
-          result.add(Reservation(
-            id: data['id'],
-            usuarioId: data['usuario_id'] ?? '',
-            instalacionId: data['instalacion_id'] ?? '',
-            pistaId: data['pista_id'] ?? '',
-            fecha: fecha,
-            horaInicio: data['hora_inicio'] ?? '',
-            horaFin: data['hora_fin'] ?? '',
-            estado: estado,
-          ));
+
+          result.add(
+            Reservation(
+              id: data['id'],
+              usuarioId: data['usuario_id'] ?? '',
+              instalacionId: data['instalacion_id'] ?? '',
+              pistaId: data['pista_id'] ?? '',
+              fecha: fecha,
+              horaInicio: data['hora_inicio'] ?? '',
+              horaFin: data['hora_fin'] ?? '',
+              estado: estado,
+            ),
+          );
         } catch (e) {
           print('Error al procesar reserva individual: $e');
         }
       }
-      
+
       return result;
     } catch (e) {
       print('Error al obtener reservas por pista y fecha: $e');
@@ -395,7 +447,8 @@ class ReservationService {
     try {
       final now = DateTime.now();
       final today = now.toIso8601String().split('T')[0];
-      final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+      final currentTime =
+          '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
       // Actualizar reservas que ya han pasado
       await _client
@@ -429,4 +482,14 @@ class ReservationService {
       print('Error al limpiar reservas antiguas: $e');
     }
   }
+}
+
+/// Excepción personalizada para errores del servicio de reservas
+class ReservationServiceException implements Exception {
+  final String message;
+
+  const ReservationServiceException(this.message);
+
+  @override
+  String toString() => 'ReservationServiceException: $message';
 }

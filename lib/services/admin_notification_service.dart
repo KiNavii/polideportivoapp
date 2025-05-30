@@ -1,7 +1,6 @@
 import 'package:deportivov1/services/supabase_service.dart';
 
 class AdminNotificationService {
-  
   /// Enviar notificación cuando se acepta una inscripción
   static Future<bool> notifyInscriptionAccepted({
     required String userId,
@@ -14,7 +13,8 @@ class AdminNotificationService {
         body: {
           'user_id': userId,
           'title': '✅ Inscripción Aceptada',
-          'message': 'Tu inscripción a "$activityName" ha sido aceptada. $scheduleInfo',
+          'message':
+              'Tu inscripción a "$activityName" ha sido aceptada. $scheduleInfo',
           'data': {
             'type': 'inscription_accepted',
             'activity_name': activityName,
@@ -26,7 +26,7 @@ class AdminNotificationService {
 
       if (response.status == 200) {
         print('✅ Notificación de inscripción enviada con Firebase');
-        
+
         // También crear notificación en BD para historial
         await _createDatabaseNotification(
           userId: userId,
@@ -34,7 +34,7 @@ class AdminNotificationService {
           message: 'Tu inscripción a "$activityName" ha sido aceptada',
           type: 'inscription_accepted',
         );
-        
+
         return true;
       }
       return false;
@@ -56,7 +56,8 @@ class AdminNotificationService {
         body: {
           'user_id': userId,
           'title': '❌ Inscripción Rechazada',
-          'message': 'Tu inscripción a "$activityName" ha sido rechazada. Motivo: $reason',
+          'message':
+              'Tu inscripción a "$activityName" ha sido rechazada. Motivo: $reason',
           'data': {
             'type': 'inscription_rejected',
             'activity_name': activityName,
@@ -68,14 +69,14 @@ class AdminNotificationService {
 
       if (response.status == 200) {
         print('✅ Notificación de rechazo enviada con Firebase');
-        
+
         await _createDatabaseNotification(
           userId: userId,
           title: '❌ Inscripción Rechazada',
           message: 'Tu inscripción a "$activityName" ha sido rechazada',
           type: 'inscription_rejected',
         );
-        
+
         return true;
       }
       return false;
@@ -87,6 +88,7 @@ class AdminNotificationService {
 
   /// Enviar notificación de nueva actividad disponible
   static Future<bool> notifyNewActivity({
+    required String activityId,
     required String activityName,
     required String description,
     required DateTime startDate,
@@ -100,6 +102,7 @@ class AdminNotificationService {
           'message': 'Se ha creado "$activityName". ¡Inscríbete ya!',
           'data': {
             'type': 'new_activity',
+            'activity_id': activityId,
             'activity_name': activityName,
             'description': description,
             'start_date': startDate.toIso8601String(),
@@ -133,7 +136,8 @@ class AdminNotificationService {
         body: {
           'user_id': userId,
           'title': '⏰ Cambio de Horario',
-          'message': '"$activityName" cambió de horario: $oldSchedule → $newSchedule',
+          'message':
+              '"$activityName" cambió de horario: $oldSchedule → $newSchedule',
           'data': {
             'type': 'schedule_change',
             'activity_name': activityName,
@@ -146,14 +150,14 @@ class AdminNotificationService {
 
       if (response.status == 200) {
         print('✅ Notificación de cambio de horario enviada con Firebase');
-        
+
         await _createDatabaseNotification(
           userId: userId,
           title: '⏰ Cambio de Horario',
           message: '"$activityName" cambió de horario',
           type: 'schedule_change',
         );
-        
+
         return true;
       }
       return false;
@@ -204,14 +208,14 @@ class AdminNotificationService {
 
       if (response.status == 200) {
         print('✅ Notificación personalizada enviada con Firebase');
-        
+
         await _createDatabaseNotification(
           userId: userId,
           title: title,
           message: message,
           type: 'custom',
         );
-        
+
         return true;
       }
       return false;
@@ -220,4 +224,4 @@ class AdminNotificationService {
       return false;
     }
   }
-} 
+}

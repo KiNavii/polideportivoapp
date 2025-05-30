@@ -39,10 +39,10 @@ class _AdminActivitiesScreenState extends State<AdminActivitiesScreen> {
     try {
       // Cargar actividades y familias de forma paralela
       // Aumentar el límite para asegurar que se carguen todas las actividades
-      final activitiesFuture = ActivityService.getActivitiesWithFamily(
+      final activitiesFuture = ActivityServiceStatic.getActivitiesWithFamily(
         limit: 50,
       );
-      final familiesFuture = ActivityService.getAllActivityFamilies();
+      final familiesFuture = ActivityServiceStatic.getAllActivityFamilies();
 
       final results = await Future.wait([activitiesFuture, familiesFuture]);
 
@@ -120,7 +120,7 @@ class _AdminActivitiesScreenState extends State<AdminActivitiesScreen> {
     });
 
     try {
-      final success = await ActivityService.deleteActivity(activityId);
+      final success = await ActivityServiceStatic.deleteActivity(activityId);
 
       // Verificar nuevamente si el widget está montado
       if (!mounted) return;
@@ -245,9 +245,12 @@ class _AdminActivitiesScreenState extends State<AdminActivitiesScreen> {
       bool success;
 
       if (isCreating) {
-        success = await ActivityService.createActivity(result);
+        success = await ActivityServiceStatic.createActivity(result);
       } else {
-        success = await ActivityService.updateActivity(activity!.id, result);
+        success = await ActivityServiceStatic.updateActivity(
+          activity!.id,
+          result,
+        );
       }
 
       if (mounted) {
@@ -308,10 +311,10 @@ class _AdminActivitiesScreenState extends State<AdminActivitiesScreen> {
 
     try {
       // Cargar actividades y familias de forma paralela con un límite alto
-      final activitiesFuture = ActivityService.getActivitiesWithFamily(
+      final activitiesFuture = ActivityServiceStatic.getActivitiesWithFamily(
         limit: 100,
       );
-      final familiesFuture = ActivityService.getAllActivityFamilies();
+      final familiesFuture = ActivityServiceStatic.getAllActivityFamilies();
 
       final results = await Future.wait([activitiesFuture, familiesFuture]);
 

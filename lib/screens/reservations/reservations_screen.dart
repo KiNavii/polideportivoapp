@@ -82,9 +82,8 @@ class _ReservationsScreenState extends State<ReservationsScreen>
 
     try {
       // Cargar reservas de forma paralela
-      final activeReservationsFuture = ReservationService.getActiveReservations(
-        userId,
-      );
+      final activeReservationsFuture =
+          ReservationService.getActiveReservations();
       final historicalReservationsFuture =
           ReservationService.getHistoricalReservations(userId);
 
@@ -1305,16 +1304,19 @@ class _ReservationsScreenState extends State<ReservationsScreen>
                                                 child: InkWell(
                                                   onTap:
                                                       slot['available'] == true
-                                                          ? () =>
-                                                              _showAdvancedReservationDialog(
-                                                                installationId: installationId,
-                                                                facilityName: name,
-                                                                timeSlot: slot['time']
+                                                          ? () => _showAdvancedReservationDialog(
+                                                            installationId:
+                                                                installationId,
+                                                            facilityName: name,
+                                                            timeSlot:
+                                                                slot['time']
                                                                     .toString(),
-                                                                gradientColors: gradientColors,
-                                                                icon: icon,
-                                                                hasCourts: hasCourts,
-                                                              )
+                                                            gradientColors:
+                                                                gradientColors,
+                                                            icon: icon,
+                                                            hasCourts:
+                                                                hasCourts,
+                                                          )
                                                           : null,
                                                   child: Container(
                                                     padding:
@@ -1454,10 +1456,14 @@ class _ReservationsScreenState extends State<ReservationsScreen>
                                               slot['available'] == true
                                                   ? () =>
                                                       _showAdvancedReservationDialog(
-                                                        installationId: installationId,
+                                                        installationId:
+                                                            installationId,
                                                         facilityName: name,
-                                                        timeSlot: slot['time'].toString(),
-                                                        gradientColors: gradientColors,
+                                                        timeSlot:
+                                                            slot['time']
+                                                                .toString(),
+                                                        gradientColors:
+                                                            gradientColors,
                                                         icon: icon,
                                                         hasCourts: hasCourts,
                                                       )
@@ -1615,7 +1621,10 @@ class _ReservationsScreenState extends State<ReservationsScreen>
   // Método para simular horarios disponibles (sin lógica de slots pasados)
   List<Map<String, dynamic>> _getFacilityTimeSlots() {
     final now = DateTime.now();
-    final isToday = _selectedDate.year == now.year && _selectedDate.month == now.month && _selectedDate.day == now.day;
+    final isToday =
+        _selectedDate.year == now.year &&
+        _selectedDate.month == now.month &&
+        _selectedDate.day == now.day;
     final currentTime = TimeOfDay.fromDateTime(now);
     final slots = [
       {'time': '09:00 - 10:00', 'available': true},
@@ -1637,7 +1646,9 @@ class _ReservationsScreenState extends State<ReservationsScreen>
           minute: int.parse(slotEndTime.split(':')[1]),
         );
         // Si la hora actual es mayor o igual a la hora de fin del slot, marcarlo como no disponible
-        if (currentTime.hour > slotEnd.hour || (currentTime.hour == slotEnd.hour && currentTime.minute >= slotEnd.minute)) {
+        if (currentTime.hour > slotEnd.hour ||
+            (currentTime.hour == slotEnd.hour &&
+                currentTime.minute >= slotEnd.minute)) {
           slot['available'] = false;
           slot['past'] = true;
         }
@@ -1692,8 +1703,10 @@ class _ReservationsScreenState extends State<ReservationsScreen>
 
           // Verificar si hay solapamiento
           final bool overlap =
-              !(int.parse(slotStartTime.replaceAll(':', '')) >= int.parse(resEndTime.replaceAll(':', '')) ||
-                int.parse(slotEndTime.replaceAll(':', '')) <= int.parse(resStartTime.replaceAll(':', '')));
+              !(int.parse(slotStartTime.replaceAll(':', '')) >=
+                      int.parse(resEndTime.replaceAll(':', '')) ||
+                  int.parse(slotEndTime.replaceAll(':', '')) <=
+                      int.parse(resStartTime.replaceAll(':', '')));
 
           if (overlap) {
             isAvailable = false;
@@ -1930,7 +1943,8 @@ class _ReservationsScreenState extends State<ReservationsScreen>
     // Si no hay una pista seleccionada para esta instalación, mostrar mensaje de error
     if (!hasCourts && _selectedCourtsByInstallation[installationId] == null) {
       // No requiere selección de pista si no tiene pistas
-    } else if (hasCourts && _selectedCourtsByInstallation[installationId] == null) {
+    } else if (hasCourts &&
+        _selectedCourtsByInstallation[installationId] == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, selecciona una pista primero'),
@@ -2019,7 +2033,8 @@ class _ReservationsScreenState extends State<ReservationsScreen>
                           _buildConfirmationInfoRow(
                             Icons.sports_tennis,
                             'PISTA',
-                            _selectedCourtsByInstallation[installationId]!.nombre,
+                            _selectedCourtsByInstallation[installationId]!
+                                .nombre,
                           ),
                         if (hasCourts) const SizedBox(height: 12),
                         _buildConfirmationInfoRow(
@@ -2067,7 +2082,10 @@ class _ReservationsScreenState extends State<ReservationsScreen>
                                 () => _createReservation(
                                   installationId,
                                   // Pasar courtId solo si la instalación tiene pistas
-                                  hasCourts ? _selectedCourtsByInstallation[installationId]!.id : null,
+                                  hasCourts
+                                      ? _selectedCourtsByInstallation[installationId]!
+                                          .id
+                                      : null,
                                   startTime,
                                   endTime,
                                 ),

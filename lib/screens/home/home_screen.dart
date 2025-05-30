@@ -5,7 +5,8 @@ import 'package:deportivov1/models/news_model.dart';
 import 'package:deportivov1/models/reservation_model.dart';
 
 import 'package:deportivov1/screens/events/events_screen.dart';
-import 'package:deportivov1/services/activity_service.dart';
+import 'package:deportivov1/screens/activities/activities_screen.dart';
+import 'package:deportivov1/services/optimized_activity_service.dart';
 import 'package:deportivov1/services/auth_provider.dart';
 import 'package:deportivov1/services/event_service.dart';
 import 'package:deportivov1/services/news_service.dart';
@@ -16,6 +17,8 @@ import 'package:provider/provider.dart';
 import 'package:deportivov1/utils/responsive_util.dart';
 import 'package:deportivov1/screens/main_navigation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:deportivov1/utils/watermark_remover.dart';
+import 'package:deportivov1/services/activity_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -56,7 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
       // Cargar actividades
       List<Activity> activities = [];
       try {
-        activities = await ActivityService.getActivitiesWithFamily(limit: 5);
+        final activityService = ActivityService();
+        activities = await activityService.getActivitiesWithFamily(limit: 5);
 
         // Ordenar por fecha y hora
         activities.sort((a, b) {
@@ -94,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
       try {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         if (authProvider.isAuthenticated) {
-          reservations = await ReservationService.getActiveReservations(
+          reservations = await ReservationService.getUserReservations(
             authProvider.user!.id,
             limit: 3,
           );
@@ -620,7 +624,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => const EventsScreen(),
+                                                  builder:
+                                                      (context) =>
+                                                          const EventsScreen(),
                                                 ),
                                               );
                                             },

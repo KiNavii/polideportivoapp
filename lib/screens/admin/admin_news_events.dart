@@ -1209,7 +1209,7 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
                           } else {
                             // Actualizar noticia existente
                             success = await NewsService.updateNews(
-                              id: item!['id'].toString(),
+                              newsId: item!['id'].toString(),
                               titulo: titulo,
                               contenido: contenido,
                               categoria: newsCategory,
@@ -1646,6 +1646,4 @@ class _AdminNewsEventsScreenState extends State<AdminNewsEventsScreen>
         return EventCategory.otros;
     }
   }
-
-
 }

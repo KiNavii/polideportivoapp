@@ -43,8 +43,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
     try {
       // Cargar actividades y familias de forma paralela
-      final activitiesFuture = ActivityService.getActivitiesWithFamily();
-      final familiesFuture = ActivityService.getAllActivityFamilies();
+      final activitiesFuture = ActivityServiceStatic.getActivitiesWithFamily();
+      final familiesFuture = ActivityServiceStatic.getAllActivityFamilies();
 
       // Esperar a que ambas operaciones terminen
       final results = await Future.wait([activitiesFuture, familiesFuture]);
@@ -736,7 +736,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
                                   // Realizar la inscripción
                                   final success =
-                                      await ActivityService.enrollActivity(
+                                      await ActivityServiceStatic.enrollActivity(
                                         activity.id,
                                         authProvider.user!.id,
                                       );
@@ -822,7 +822,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       );
 
       // Obtener inscripciones del usuario
-      final enrollments = await ActivityService.getUserEnrollments(userId);
+      final enrollments = await ActivityServiceStatic.getUserEnrollments(
+        userId,
+      );
 
       // Cerrar indicador de carga
       if (mounted && Navigator.canPop(context)) {
@@ -978,7 +980,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
               (context) => const Center(child: CircularProgressIndicator()),
         );
 
-        final success = await ActivityService.cancelEnrollment(enrollmentId);
+        final success = await ActivityServiceStatic.cancelEnrollment(
+          enrollmentId,
+        );
 
         // Cerrar indicador de carga
         if (mounted && Navigator.canPop(context)) {
@@ -1556,7 +1560,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       );
 
       // Realizar la inscripción
-      final success = await ActivityService.enrollActivity(
+      final success = await ActivityServiceStatic.enrollActivity(
         activity.id,
         authProvider.user!.id,
       );
